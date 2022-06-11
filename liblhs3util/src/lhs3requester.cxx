@@ -3,18 +3,10 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <lhs3util/lhs3requester.h>
+#include <lhs3util_impl/lhs3requesterimpl.h>
 
-namespace LHS3UtilNS
+namespace LHS3UtilImplNS
 {
-
-    ObjectUploader::~ObjectUploader()
-    {
-    }
-
-    ObjectDownloader::~ObjectDownloader()
-    {
-    }
 
     const char* cstrOrDefault( const std::string& str, const char* dflt )
     {
@@ -33,8 +25,8 @@ namespace LHS3UtilNS
         uint64_t contentLength;
 
         LHS3_cb_data( LHS3Ret& _lhs3Ret )
-        :   lhs3Ret( _lhs3Ret )
-        ,   contentLength( 0 )
+            : lhs3Ret( _lhs3Ret )
+            , contentLength( 0 )
         {
         }
 
@@ -43,31 +35,31 @@ namespace LHS3UtilNS
 
     S3Status lhs3ResponsePropertiesCallback(
         const S3ResponseProperties* properties,
-        void* callbackData)
+        void* callbackData )
     {
-        LHS3_cb_data* lhs3CBData( ( LHS3_cb_data* ) callbackData ); 
+        LHS3_cb_data* lhs3CBData( (LHS3_cb_data*)callbackData );
         try
         {
             lhs3CBData->contentLength = properties->contentLength;
         }
-        catch( std::exception e )
+        catch ( std::exception e )
         {
-            if( lhs3CBData != nullptr )
+            if ( lhs3CBData != nullptr )
             {
                 try
                 {
                     lhs3CBData->lhs3Ret.first = LHS3Status::ExceptionInRspCallback;
                     lhs3CBData->lhs3Ret.second = "exception in props callback";
                 }
-                catch( ... )
+                catch ( ... )
                 {
                     ;
                 }
             }
         }
-        catch( ... )
+        catch ( ... )
         {
-            if( lhs3CBData != nullptr )
+            if ( lhs3CBData != nullptr )
             {
                 try
                 {
@@ -75,7 +67,7 @@ namespace LHS3UtilNS
                     lhs3CBData->lhs3Ret.second =
                         "unknown exception in props callback";
                 }
-                catch( ... )
+                catch ( ... )
                 {
                     ;
                 }
@@ -88,43 +80,43 @@ namespace LHS3UtilNS
     void lhs3ResponseCompleteCallback(
         S3Status status,
         const S3ErrorDetails *error,
-        void* callbackData)
+        void* callbackData )
     {
-        LHS3_cb_data* lhs3CBData( ( LHS3_cb_data* ) callbackData ); 
+        LHS3_cb_data* lhs3CBData( (LHS3_cb_data*)callbackData );
         try
         {
-            if( status != S3StatusOK )
+            if ( status != S3StatusOK )
             {
                 std::ostringstream oss;
 
                 oss << S3_get_status_name( status );
-                if( error != nullptr )
+                if ( error != nullptr )
                 {
-                    if( error->message != nullptr )
+                    if ( error->message != nullptr )
                         oss << "|" << error->message;
 
-                    if( error->resource != nullptr )
+                    if ( error->resource != nullptr )
                         oss << "|" << error->resource;
                 }
 
-                if( ( status == S3StatusErrorBucketAlreadyExists ) ||
+                if ( ( status == S3StatusErrorBucketAlreadyExists ) ||
                     ( status == S3StatusErrorBucketAlreadyOwnedByYou ) )
                     lhs3CBData->lhs3Ret.first = LHS3Status::BucketExists;
-                else if( ( status == S3StatusInvalidBucketNameTooLong ) ||
-                         ( status == S3StatusInvalidBucketNameFirstCharacter ) ||
-                         ( status == S3StatusInvalidBucketNameCharacter ) ||
-                         ( status == 
-                            S3StatusInvalidBucketNameCharacterSequence ) ||
-                         ( status == S3StatusInvalidBucketNameTooShort ) ||
-                         ( status == S3StatusErrorInvalidBucketName ) ||
-                         ( status == S3StatusInvalidBucketNameDotQuadNotation ) )
+                else if ( ( status == S3StatusInvalidBucketNameTooLong ) ||
+                    ( status == S3StatusInvalidBucketNameFirstCharacter ) ||
+                    ( status == S3StatusInvalidBucketNameCharacter ) ||
+                    ( status ==
+                        S3StatusInvalidBucketNameCharacterSequence ) ||
+                    ( status == S3StatusInvalidBucketNameTooShort ) ||
+                    ( status == S3StatusErrorInvalidBucketName ) ||
+                    ( status == S3StatusInvalidBucketNameDotQuadNotation ) )
                     lhs3CBData->lhs3Ret.first = LHS3Status::BucketBadName;
-                else if( status == S3StatusErrorNoSuchBucket )
+                else if ( status == S3StatusErrorNoSuchBucket )
                     lhs3CBData->lhs3Ret.first = LHS3Status::BucketNotFound;
-                else if( status == S3StatusErrorBucketNotEmpty )
+                else if ( status == S3StatusErrorBucketNotEmpty )
                     lhs3CBData->lhs3Ret.first = LHS3Status::BucketNotEmpty;
-                else if( ( status == S3StatusErrorNoSuchKey ) ||
-                         ( status == S3StatusHttpErrorNotFound ) )
+                else if ( ( status == S3StatusErrorNoSuchKey ) ||
+                    ( status == S3StatusHttpErrorNotFound ) )
                     lhs3CBData->lhs3Ret.first = LHS3Status::ObjectNotFound;
                 else
                     lhs3CBData->lhs3Ret.first = LHS3Status::Error;
@@ -133,31 +125,31 @@ namespace LHS3UtilNS
             else
                 lhs3CBData->lhs3Ret.first = LHS3Status::OK;
         }
-        catch( std::exception e )
+        catch ( std::exception e )
         {
-            if( lhs3CBData != nullptr )
+            if ( lhs3CBData != nullptr )
             {
                 try
                 {
                     lhs3CBData->lhs3Ret.first = LHS3Status::ExceptionInRspCallback;
                     lhs3CBData->lhs3Ret.second = e.what();
                 }
-                catch( ... )
+                catch ( ... )
                 {
                     ;
                 }
             }
         }
-        catch( ... )
+        catch ( ... )
         {
-            if( lhs3CBData != nullptr )
+            if ( lhs3CBData != nullptr )
             {
                 try
                 {
                     lhs3CBData->lhs3Ret.first = LHS3Status::ExceptionInAppCallback;
                     lhs3CBData->lhs3Ret.second = "unknown exception";
                 }
-                catch( ... )
+                catch ( ... )
                 {
                     ;
                 }
@@ -177,9 +169,9 @@ namespace LHS3UtilNS
         std::vector< std::string >& outBuckets;
 
         LHS3_list_service_cb_data( LHS3Ret& _lhs3Ret,
-                                   std::vector< std::string >& _outBuckets )
-        :   LHS3_cb_data( _lhs3Ret )
-        ,   outBuckets( _outBuckets )
+            std::vector< std::string >& _outBuckets )
+            : LHS3_cb_data( _lhs3Ret )
+            , outBuckets( _outBuckets )
         {
         };
 
@@ -187,42 +179,42 @@ namespace LHS3UtilNS
     };
 
     S3Status lhs3ListServiceCallback( const char* ownerID,
-                                      const char* ownerDisplayName,
-                                      const char* bucketName,
-                                      int64_t creationDateSeconds,
-                                      void* callbackData )
+        const char* ownerDisplayName,
+        const char* bucketName,
+        int64_t creationDateSeconds,
+        void* callbackData )
     {
         S3Status status = S3StatusHttpErrorUnknown;
-        LHS3_list_service_cb_data* lhs3ListCBData( 
-            ( LHS3_list_service_cb_data* ) callbackData ); 
+        LHS3_list_service_cb_data* lhs3ListCBData(
+            (LHS3_list_service_cb_data*)callbackData );
 
         try
         {
             lhs3ListCBData->outBuckets.emplace_back( bucketName );
             status = S3StatusOK;
         }
-        catch( std::exception e )
+        catch ( std::exception e )
         {
             try
             {
                 lhs3ListCBData->lhs3Ret.first = LHS3Status::ExceptionInAppCallback;
                 lhs3ListCBData->lhs3Ret.second = e.what();
             }
-            catch( ... )
+            catch ( ... )
             {
                 ;
             }
 
             status = S3StatusAbortedByCallback;
         }
-        catch( ... )
+        catch ( ... )
         {
             try
             {
                 lhs3ListCBData->lhs3Ret.first = LHS3Status::ExceptionInAppCallback;
                 lhs3ListCBData->lhs3Ret.second = "unknown exception";
             }
-            catch( ... )
+            catch ( ... )
             {
                 ;
             }
@@ -242,12 +234,12 @@ namespace LHS3UtilNS
     //Passed to put object callbacks
     struct LHS3_put_object_cb_data : LHS3_cb_data
     {
-        ObjectUploader& objectUploader;
+        LHS3UtilNS::IObjectUploader& objectUploader;
 
         LHS3_put_object_cb_data( LHS3Ret& _lhs3Ret,
-                                 ObjectUploader& _objectUploader )
-        :   LHS3_cb_data( _lhs3Ret )
-        ,   objectUploader( _objectUploader )
+            LHS3UtilNS::IObjectUploader& _objectUploader )
+            : LHS3_cb_data( _lhs3Ret )
+            , objectUploader( _objectUploader )
         {
         };
 
@@ -258,12 +250,12 @@ namespace LHS3UtilNS
     int lhs3PutObjectCallback( int bufferSize, char* buffer, void* callbackData )
     {
         int ret = -1;
-        LHS3_put_object_cb_data* lhs3PutObjectCBData( 
-            ( LHS3_put_object_cb_data* ) callbackData ); 
+        LHS3_put_object_cb_data* lhs3PutObjectCBData(
+            (LHS3_put_object_cb_data*)callbackData );
 
         try
         {
-            if( bufferSize == 0 )
+            if ( bufferSize == 0 )
                 ret = 0;
             else
             {
@@ -276,28 +268,28 @@ namespace LHS3UtilNS
                 ret = objectContents.size();
             }
         }
-        catch( std::exception e )
+        catch ( std::exception e )
         {
             try
             {
                 lhs3PutObjectCBData->lhs3Ret.first = LHS3Status::ExceptionInAppCallback;
                 lhs3PutObjectCBData->lhs3Ret.second = e.what();
             }
-            catch( ... )
+            catch ( ... )
             {
                 ;
             }
 
             ret = -1;
         }
-        catch( ... )
+        catch ( ... )
         {
             try
             {
                 lhs3PutObjectCBData->lhs3Ret.first = LHS3Status::ExceptionInAppCallback;
                 lhs3PutObjectCBData->lhs3Ret.second = "unknown exception";
             }
-            catch( ... )
+            catch ( ... )
             {
                 ;
             }
@@ -322,34 +314,34 @@ namespace LHS3UtilNS
         std::vector< std::string >& outObjects;
 
         LHS3_list_bucket_cb_data( LHS3Ret& _lhs3Ret,
-                                  std::vector< std::string >& _outObjects )
-        :   LHS3_cb_data( _lhs3Ret )
-        ,   outObjects( _outObjects )
+            std::vector< std::string >& _outObjects )
+            : LHS3_cb_data( _lhs3Ret )
+            , outObjects( _outObjects )
         {
         };
 
         LHS3_list_bucket_cb_data() = delete;
     };
 
-    S3Status lhs3ListBucketCallback(  int isTruncated,
-                                      const char* nextMarker,
-                                      int contentsCount,
-                                      const S3ListBucketContent* contents,
-                                      int commonePrefixesCount,
-                                      const char** commonPrefixes,
-                                      void* callbackData )
+    S3Status lhs3ListBucketCallback( int isTruncated,
+        const char* nextMarker,
+        int contentsCount,
+        const S3ListBucketContent* contents,
+        int commonePrefixesCount,
+        const char** commonPrefixes,
+        void* callbackData )
     {
         S3Status status = S3StatusHttpErrorUnknown;
-        LHS3_list_bucket_cb_data* lhs3ListCBData( 
-            ( LHS3_list_bucket_cb_data* ) callbackData ); 
+        LHS3_list_bucket_cb_data* lhs3ListCBData(
+            (LHS3_list_bucket_cb_data*)callbackData );
 
         try
         {
-            for( int i = 0; i < contentsCount; ++i )
+            for ( int i = 0; i < contentsCount; ++i )
             {
-                const S3ListBucketContent *content = &(contents[i]);
+                const S3ListBucketContent *content = &( contents[ i ] );
 
-                if( ( content != nullptr ) && ( content->key != nullptr ) )
+                if ( ( content != nullptr ) && ( content->key != nullptr ) )
                 {
                     lhs3ListCBData->outObjects.emplace_back( content->key );
                 }
@@ -357,28 +349,28 @@ namespace LHS3UtilNS
 
             status = S3StatusOK;
         }
-        catch( std::exception e )
+        catch ( std::exception e )
         {
             try
             {
                 lhs3ListCBData->lhs3Ret.first = LHS3Status::ExceptionInAppCallback;
                 lhs3ListCBData->lhs3Ret.second = e.what();
             }
-            catch( ... )
+            catch ( ... )
             {
                 ;
             }
 
             status = S3StatusAbortedByCallback;
         }
-        catch( ... )
+        catch ( ... )
         {
             try
             {
                 lhs3ListCBData->lhs3Ret.first = LHS3Status::ExceptionInAppCallback;
                 lhs3ListCBData->lhs3Ret.second = "unknown exception";
             }
-            catch( ... )
+            catch ( ... )
             {
                 ;
             }
@@ -400,12 +392,12 @@ namespace LHS3UtilNS
     //Passed to get object callback
     struct LHS3_get_object_cb_data : LHS3_cb_data
     {
-        ObjectDownloader& objectDownloader;
+        LHS3UtilNS::IObjectDownloader& objectDownloader;
 
         LHS3_get_object_cb_data( LHS3Ret& _lhs3Ret,
-                                 ObjectDownloader& _objectDownloader )
-        :   LHS3_cb_data( _lhs3Ret )
-        ,   objectDownloader( _objectDownloader )
+            LHS3UtilNS::IObjectDownloader& _objectDownloader )
+            : LHS3_cb_data( _lhs3Ret )
+            , objectDownloader( _objectDownloader )
         {
         };
 
@@ -420,8 +412,8 @@ namespace LHS3UtilNS
         void* callbackData )
     {
         S3Status status = S3StatusHttpErrorUnknown;
-        LHS3_get_object_cb_data* lhs3GetCBData( 
-            ( LHS3_get_object_cb_data* ) callbackData ); 
+        LHS3_get_object_cb_data* lhs3GetCBData(
+            (LHS3_get_object_cb_data*)callbackData );
 
         try
         {
@@ -430,36 +422,34 @@ namespace LHS3UtilNS
 
             status = S3StatusOK;
         }
-        catch( std::exception e )
+        catch ( std::exception e )
         {
             try
             {
                 lhs3GetCBData->lhs3Ret.first = LHS3Status::ExceptionInAppCallback;
                 lhs3GetCBData->lhs3Ret.second = e.what();
             }
-            catch( ... )
+            catch ( ... )
             {
             }
 
             status = S3StatusAbortedByCallback;
         }
-        catch( ... )
+        catch ( ... )
         {
             try
             {
                 lhs3GetCBData->lhs3Ret.first = LHS3Status::ExceptionInAppCallback;
                 lhs3GetCBData->lhs3Ret.second = "unknown exception";
             }
-            catch( ... )
+            catch ( ... )
             {
             }
 
             status = S3StatusAbortedByCallback;
         }
 
-
         return status;
-
     }
 
     S3GetObjectHandler lhs3GetObjectHandler =
@@ -468,34 +458,42 @@ namespace LHS3UtilNS
         &lhs3GetObjectDataCallback
     };
 
-    class CharVectorObjectDownloader : public ObjectDownloader
+    class CharVectorObjectDownloader : public LHS3UtilNS::IObjectDownloader
     {
-        public:
-            std::vector< char >& downloadedChars;
+    public:
+        CharVectorObjectDownloader( std::vector< char >& _downloadedChars )
+            : LHS3UtilNS::IObjectDownloader()
+            , downloadedChars( _downloadedChars )
+        {}
 
-            CharVectorObjectDownloader( std::vector< char >& _downloadedChars )
-            : downloadedChars( _downloadedChars )
-            {
-            }
+        ~CharVectorObjectDownloader()
+        {}
 
-            virtual void PutContentChars( int numChars, const char* chars )
-            {
-                std::vector< char >::size_type originalSize( downloadedChars.size() );
+        void PutContentChars( int numChars, const char* chars )
+        {
+            std::vector< char >::size_type originalSize( downloadedChars.size() );
 
-                downloadedChars.resize( downloadedChars.size() +
-                                        numChars );
+            downloadedChars.resize( downloadedChars.size() +
+                numChars );
 
-                memcpy( downloadedChars.data() + originalSize,
-                        chars,
-                        numChars );
-            }
+            memcpy( downloadedChars.data() + originalSize,
+                chars,
+                numChars );
+        }
 
-            CharVectorObjectDownloader() = delete;
+    private:
+        std::vector< char >& downloadedChars;
     };
 
+    LHS3RequesterImpl::LHS3RequesterImpl()
+        : LHS3UtilNS::ILHS3Requester()
+    {}
 
-    LHS3Ret LHS3Requester::GetBuckets( const LHS3RequestContext& requestContext,
-                                       std::vector< std::string >& outBuckets )
+    LHS3RequesterImpl~LHS3RequesterImpl()
+    {}
+
+    LHS3Ret LHS3RequesterImpl::GetBuckets( const LHS3RequestContext& requestContext,
+        std::vector< std::string >& outBuckets )
     {
         LHS3Ret lhs3Ret( LHS3Status::Error, std::string() );
         LHS3_list_service_cb_data lhs3ListCBData( lhs3Ret, outBuckets );
@@ -515,16 +513,16 @@ namespace LHS3UtilNS
         return lhs3Ret;
     }
 
-    LHS3Ret LHS3Requester::CreateBucket( const LHS3RequestContext& requestContext,
-                                         const std::string& bucketName )
+    LHS3Ret LHS3RequesterImpl::CreateBucket( const LHS3RequestContext& requestContext,
+        const std::string& bucketName )
     {
         LHS3Ret lhs3Ret( LHS3Status::Error, std::string() );
         LHS3_cb_data lhs3CBData( lhs3Ret );
         S3Status s3Status = S3StatusOK;
 
         s3Status = S3_validate_bucket_name( cstrOrDefault( bucketName, "" ),
-                                            S3UriStylePath );
-        if( s3Status == S3StatusOK )
+            S3UriStylePath );
+        if ( s3Status == S3StatusOK )
         {
             S3_create_bucket(
                 requestContext.Protocol(),
@@ -550,55 +548,55 @@ namespace LHS3UtilNS
         return lhs3Ret;
     }
 
-    LHS3Ret LHS3Requester::BucketExists( const LHS3RequestContext& requestContext,
-                                         const std::string& bucketName )
+    LHS3Ret LHS3RequesterImpl::BucketExists( const LHS3RequestContext& requestContext,
+        const std::string& bucketName )
     {
         LHS3Ret lhs3Ret( LHS3Status::BucketNotFound, std::string() );
         LHS3_cb_data lhs3CBData( lhs3Ret );
 
-        if( bucketName.size() > 0 )
+        if ( bucketName.size() > 0 )
             S3_test_bucket( requestContext.Protocol(),
-                            S3UriStylePath, //TODO - what is this? Putin RequestContext
-                            cstrOrNULL( requestContext.AccessKey() ),
-                            cstrOrNULL( requestContext.SecretKey() ),
-                            cstrOrNULL( requestContext.SecurityToken() ),
-                            cstrOrNULL( requestContext.Host() ),
-                            bucketName.c_str(),
-                            nullptr,
-                            0,
-                            nullptr,
-                            nullptr,
-                            requestContext.TimeoutMS(),
-                            &lhs3ResponseHandler,
-                            &lhs3CBData );
+                S3UriStylePath, //TODO - what is this? Putin RequestContext
+                cstrOrNULL( requestContext.AccessKey() ),
+                cstrOrNULL( requestContext.SecretKey() ),
+                cstrOrNULL( requestContext.SecurityToken() ),
+                cstrOrNULL( requestContext.Host() ),
+                bucketName.c_str(),
+                nullptr,
+                0,
+                nullptr,
+                nullptr,
+                requestContext.TimeoutMS(),
+                &lhs3ResponseHandler,
+                &lhs3CBData );
 
         return lhs3Ret;
     }
 
-    LHS3Ret LHS3Requester::DeleteBucket( const LHS3RequestContext& requestContext,
-                                         const std::string& bucketName )
+    LHS3Ret LHS3RequesterImpl::DeleteBucket( const LHS3RequestContext& requestContext,
+        const std::string& bucketName )
     {
         LHS3Ret lhs3Ret( LHS3Status::Error, std::string() );
         LHS3_cb_data lhs3CBData( lhs3Ret );
 
-        if( bucketName.size() > 0 )
+        if ( bucketName.size() > 0 )
             S3_delete_bucket( requestContext.Protocol(),
-                              S3UriStylePath, //TODO - what isthis?Putin RequestContext
-                              cstrOrNULL( requestContext.AccessKey() ),
-                              cstrOrNULL( requestContext.SecretKey() ),
-                              cstrOrNULL( requestContext.SecurityToken() ),
-                              cstrOrNULL( requestContext.Host() ),
-                              bucketName.c_str(),
-                              nullptr,
-                              nullptr,
-                              requestContext.TimeoutMS(),
-                              &lhs3ResponseHandler,
-                              &lhs3CBData );
+                S3UriStylePath, //TODO - what isthis?Putin RequestContext
+                cstrOrNULL( requestContext.AccessKey() ),
+                cstrOrNULL( requestContext.SecretKey() ),
+                cstrOrNULL( requestContext.SecurityToken() ),
+                cstrOrNULL( requestContext.Host() ),
+                bucketName.c_str(),
+                nullptr,
+                nullptr,
+                requestContext.TimeoutMS(),
+                &lhs3ResponseHandler,
+                &lhs3CBData );
 
         return lhs3Ret;
     }
 
-    LHS3Ret LHS3Requester::GetObjectsInBucket(
+    LHS3Ret LHS3RequesterImpl::GetObjectsInBucket(
         const LHS3RequestContext& requestContext,
         const std::string& bucketName,
         std::vector< std::string >& outObjects )
@@ -633,10 +631,10 @@ namespace LHS3UtilNS
         return lhs3Ret;
     }
 
-    LHS3Ret LHS3Requester::UploadObject( const LHS3RequestContext& requestContext,
-                                         const std::string& bucketName,
-                                         const std::string& objectName,
-                                         ObjectUploader& objectUploader )
+    LHS3Ret LHS3RequesterImpl::UploadObject( const LHS3RequestContext& requestContext,
+        const std::string& bucketName,
+        const std::string& objectName,
+        LHS3UtilNS::IObjectUploader& objectUploader )
     {
         LHS3Ret lhs3Ret( LHS3Status::Error, std::string() );
         S3BucketContext bucketContext =
@@ -653,7 +651,7 @@ namespace LHS3UtilNS
         LHS3_put_object_cb_data data( lhs3Ret, objectUploader );
 
 
-        if( ( bucketName.size() > 0 ) && ( objectName.size() > 0 ) )
+        if ( ( bucketName.size() > 0 ) && ( objectName.size() > 0 ) )
             S3_put_object(
                 &bucketContext,
                 objectName.c_str(),
@@ -662,15 +660,15 @@ namespace LHS3UtilNS
                 nullptr,
                 requestContext.TimeoutMS(),
                 &lhs3PutObjectHandler,
-                &data);
+                &data );
 
         return lhs3Ret;
     }
 
-    LHS3Ret LHS3Requester::DownloadObject( const LHS3RequestContext& requestContext,
-                                           const std::string& bucketName,
-                                           const std::string& objectName,
-                                           ObjectDownloader& objectDownloader )
+    LHS3Ret LHS3RequesterImpl::DownloadObject( const LHS3RequestContext& requestContext,
+        const std::string& bucketName,
+        const std::string& objectName,
+        LHS3UtilNS::IObjectDownloader& objectDownloader )
     {
         LHS3Ret lhs3Ret( LHS3Status::Error, std::string() );
         S3BucketContext bucketContext =
@@ -687,7 +685,7 @@ namespace LHS3UtilNS
         LHS3_get_object_cb_data data( lhs3Ret, objectDownloader );
 
 
-        if( ( bucketName.size() > 0 ) && ( objectName.size() > 0 ) )
+        if ( ( bucketName.size() > 0 ) && ( objectName.size() > 0 ) )
             S3_get_object(
                 &bucketContext,
                 objectName.c_str(),
@@ -697,16 +695,16 @@ namespace LHS3UtilNS
                 nullptr,
                 requestContext.TimeoutMS(),
                 &lhs3GetObjectHandler,
-                &data);
+                &data );
 
 
         return lhs3Ret;
     }
 
-    LHS3Ret LHS3Requester::DownloadObject( const LHS3RequestContext& requestContext,
-                                           const std::string& bucketName,
-                                           const std::string& objectName,
-                                           std::vector< char >& chars )
+    LHS3Ret LHS3RequesterImpl::DownloadObject( const LHS3RequestContext& requestContext,
+        const std::string& bucketName,
+        const std::string& objectName,
+        std::vector< char >& chars )
     {
         CharVectorObjectDownloader charsObjectDownloader( chars );
         return DownloadObject(
@@ -716,7 +714,7 @@ namespace LHS3UtilNS
             charsObjectDownloader );
     }
 
-    LHS3Ret LHS3Requester::DeleteObjectFromBucket(
+    LHS3Ret LHS3RequesterImpl::DeleteObjectFromBucket(
         const LHS3RequestContext& requestContext,
         const std::string& bucketName,
         const std::string& objectName )
@@ -736,29 +734,29 @@ namespace LHS3UtilNS
         LHS3_cb_data lhs3CBData( lhs3Ret );
 
 
-        if( ( bucketName.size() > 0 ) && ( objectName.size() > 0 ) )
+        if ( ( bucketName.size() > 0 ) && ( objectName.size() > 0 ) )
             S3_delete_object(
                 &bucketContext,
                 objectName.c_str(),
                 nullptr,
                 requestContext.TimeoutMS(),
                 &lhs3ResponseHandler,
-                &lhs3CBData);
+                &lhs3CBData );
 
         return lhs3Ret;
     }
 
-    LHS3Ret LHS3Requester::CheckObject(
+    LHS3Ret LHS3RequesterImpl::CheckObject(
         const LHS3RequestContext& requestContext,
         const std::string& bucketName,
         const std::string& objectName )
     {
         uint64_t contentLengthBytes( 0 );
         return CheckObject( requestContext,
-                            bucketName, objectName, contentLengthBytes );
+            bucketName, objectName, contentLengthBytes );
     }
 
-    LHS3Ret LHS3Requester::CheckObject(
+    LHS3Ret LHS3RequesterImpl::CheckObject(
         const LHS3RequestContext& requestContext,
         const std::string& bucketName,
         const std::string& objectName,
@@ -781,18 +779,37 @@ namespace LHS3UtilNS
 
         contentLengthBytes = 0;
 
-        if( ( bucketName.size() > 0 ) && ( objectName.size() > 0 ) )
+        if ( ( bucketName.size() > 0 ) && ( objectName.size() > 0 ) )
             S3_head_object(
                 &bucketContext,
                 objectName.c_str(),
                 nullptr,
                 requestContext.TimeoutMS(),
                 &lhs3ResponseHandler,
-                &lhs3CBData);
+                &lhs3CBData );
 
         contentLengthBytes = lhs3CBData.contentLength;
 
         return lhs3Ret;
+    }
 
+    LHS3RequesterFactoryImpl()
+        : LHS3UtilNS::ILHS3RequesterFactory()
+    {}
+
+    LHS3RequesterFactoryImpl::~LHS3RequesterFactoryImpl()
+    {}
+
+    std::unique_ptr< ILHS3Requester > LHS3RequesterFactoryImpl::CreateLHS3Requester() const
+    {
+        return std::unique_ptr< LHS3RequesterImpl >( new LHS3RequesterImpl() );
+    }
+}
+
+namespace LHS3UtilNS
+{
+    std::shared_ptr< ILHS3RequesterFactory > CreateStandardLHS3RequesterFactoryOnce()
+    {
+        // TODO - from here
     }
 }

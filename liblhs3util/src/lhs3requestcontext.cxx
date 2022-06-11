@@ -5,28 +5,32 @@
 namespace LHS3UtilNS
 {
     LHS3RequestContext::LHS3RequestContext( const std::string& _host,
-                                            const std::string& _accessKey,
-                                            const std::string& _secretKey )
-    :   host( _host )
-    ,   accessKey( _accessKey )
-    ,   secretKey( _secretKey )
-    ,   protocol( S3ProtocolHTTP )
-    ,   securityToken()
-    ,   timeoutMS( 500 )
-    ,   authRegion()
+        const std::string& _accessKey,
+        const std::string& _secretKey )
+        : host( _host )
+        , accessKey( _accessKey )
+        , secretKey( _secretKey )
+        , securityToken()
+        , timeoutMS( 500 )
+        , authRegion()
     {
-        if( host.size() <= 0 )
+        if ( host.size() <= 0 )
         {
             throw std::runtime_error( "host cannot be empty" );
         }
-        else if( accessKey.size() <= 0 )
+        else if ( accessKey.size() <= 0 )
         {
             throw std::runtime_error( "accessKey cannot be empty" );
         }
-        else if( secretKey.size() <= 0 )
+        else if ( secretKey.size() <= 0 )
         {
             throw std::runtime_error( "secretKey cannot be empty" );
         }
+    }
+
+    void SetSecurityToken( const std::string& _securityToken )
+    {
+        securityToken = _securityToken;
     }
 
     const std::string& LHS3RequestContext::SecurityToken() const
@@ -34,7 +38,7 @@ namespace LHS3UtilNS
         return securityToken;
     }
 
-    void LHS3RequestContext::SetTimeoutMS(int _timeoutMS )
+    void LHS3RequestContext::SetTimeoutMS( int _timeoutMS )
     {
         timeoutMS = _timeoutMS;
     }
@@ -44,14 +48,14 @@ namespace LHS3UtilNS
         return timeoutMS;
     }
 
+    void SetAuthRegion( const std::string& _authRegion )
+    {
+        authRegion = _authRegion;
+    }
+
     const std::string& LHS3RequestContext::AuthRegion() const
     {
         return authRegion;
-    }
-
-    S3Protocol LHS3RequestContext::Protocol() const
-    {
-        return protocol;
     }
 
     const std::string& LHS3RequestContext::Host() const
