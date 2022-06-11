@@ -33,10 +33,6 @@ namespace LHS3UtilNS
 
     std::unique_ptr< IS3Requester > CreateS3RequesterWithInjectedFactory()
     {
-        auto factory( GetInjectedLHS3RequesterFactory() );
-        if ( factory )
-            return factory->CreateS3Requester();
-        else
-            return std::nullptr;
+        return GetInjectedLHS3RequesterFactory()->CreateS3Requester();
     }
 }
