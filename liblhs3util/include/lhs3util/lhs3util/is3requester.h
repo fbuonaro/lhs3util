@@ -1,15 +1,15 @@
-#ifndef __LHS3UTIL_ILHS3REQUESTER_H__
-#define __LHS3UTIL_ILHS3REQUESTER_H__
+#ifndef __LHS3UTIL_S3REQUESTER_H__
+#define __LHS3UTIL_S3REQUESTER_H__
 
 #include <memory>
 #include <string>
 #include <vector>
 
-#include <lhs3util/lhs3requestcontext.h>
+#include <lhs3util/s3requestcontext.h>
 
 namespace LHS3UtilNS
 {
-    enum class LHS3Status : std::uint16_t
+    enum class S3Status : std::uint16_t
     {
         OK,
         BucketNotFound,
@@ -22,7 +22,7 @@ namespace LHS3UtilNS
         ExceptionInRspCallback
     };
 
-    typedef std::pair< LHS3Status, std::string > LHS3Ret;
+    typedef std::pair< S3Status, std::string > S3Ret;
 
     class IObjectUploader
     {
@@ -44,78 +44,84 @@ namespace LHS3UtilNS
         virtual void PutContentChars( int numChars, const char* chars ) = 0;
     };
 
-    class ILHS3Requester
+    class IS3Requester
     {
     public:
-        ILHS3Requester();
-        virtual ~ILHS3Requester();
+        IS3Requester();
+        virtual ~IS3Requester();
 
-        virtual LHS3Ret GetBuckets( const LHS3RequestContext& requestContext,
+        virtual S3Ret GetBuckets( const S3RequestContext& requestContext,
             std::vector< std::string >& outBuckets ) = 0;
 
-        virtual LHS3Ret CreateBucket( const LHS3RequestContext& requestContext,
+        virtual S3Ret CreateBucket( const S3RequestContext& requestContext,
             const std::string& bucketName ) = 0;
 
-        virtual LHS3Ret DeleteBucket( const LHS3RequestContext& requestContext,
+        virtual S3Ret DeleteBucket( const S3RequestContext& requestContext,
             const std::string& bucketName ) = 0;
 
-        virtual LHS3Ret BucketExists( const LHS3RequestContext& requestContext,
+        virtual S3Ret BucketExists( const S3RequestContext& requestContext,
             const std::string& bucketName ) = 0;
 
-        virtual LHS3Ret GetObjectsInBucket( const LHS3RequestContext& requestContext,
+        virtual S3Ret GetObjectsInBucket( const S3RequestContext& requestContext,
             const std::string& bucketName,
             std::vector< std::string >& outObjects ) = 0;
 
         //Upload Object into Bucket By Name
-        virtual LHS3Ret UploadObject( const LHS3RequestContext& requestContext,
+        virtual S3Ret UploadObject( const S3RequestContext& requestContext,
             const std::string& bucketName,
             const std::string& objectName,
             IObjectUploader& objectUploader ) = 0;
 
         //Download Object from Bucket By Name
-        virtual LHS3Ret DownloadObject( const LHS3RequestContext& requestContext,
+        virtual S3Ret DownloadObject( const S3RequestContext& requestContext,
             const std::string& bucketName,
             const std::string& objectName,
             IObjectDownloader& objectDownloader ) = 0;
 
-        virtual LHS3Ret DownloadObject( const LHS3RequestContext& requestContext,
+        virtual S3Ret DownloadObject( const S3RequestContext& requestContext,
             const std::string& bucketName,
             const std::string& objectName,
             std::vector< char >& chars ) = 0;
 
-        virtual LHS3Ret CheckObject( const LHS3RequestContext& requestContext,
+        virtual S3Ret CheckObject( const S3RequestContext& requestContext,
             const std::string& bucketName,
             const std::string& objectName ) = 0;
 
-        virtual LHS3Ret CheckObject( const LHS3RequestContext& requestContext,
+        virtual S3Ret CheckObject( const S3RequestContext& requestContext,
             const std::string& bucketName,
             const std::string& objectName,
             uint64_t& contentLengthBytes ) = 0;
 
-        virtual LHS3Ret DeleteObjectFromBucket(
-            const LHS3RequestContext& requestContext,
+        virtual S3Ret DeleteObjectFromBucket(
+            const S3RequestContext& requestContext,
             const std::string& bucketName,
             const std::string& objectName ) = 0;
     };
 
-    class ILHS3RequesterFactory
+    class IS3RequesterFactory
     {
     public:
-        ILHS3RequesterFactory();
-        virtual ~ILHS3RequesterFactory();
+        IS3RequesterFactory();
+        virtual ~IS3RequesterFactory();
 
-        virtual std::unique_ptr< ILHS3Requester > CreateLHS3Requester() const = 0;
+        virtual std::unique_ptr< IS3Requester > CreateS3Requester() const = 0;
     };
 
-    std::shared_ptr< ILHS3RequesterFactory > GetInjectedLHS3RequesterFactory();
-    std::shared_ptr< ILHS3RequesterFactory > CreateStandardLHS3RequesterFactoryOnce();
+    struct S3RequesterFactoryParams
+    {
+        std::string defaultHostName;
+    };
+
+    std::shared_ptr< IS3RequesterFactory > CreateStandardS3RequesterFactoryOnce( const S3RequesterFactoryParams& params );
+    std::shared_ptr< IS3RequesterFactory > GetInjectedS3RequesterFactory();
+    std::unique_ptr< IS3Requester > CreateS3RequesterWithInjectedFactory();
 }
 
 #include <lhmiscutil/singleton.h>
 
 namespace LHMiscUtilNS
 {
-    EnableClassAsSingleton( LHS3UtilNS::ILHS3RequesterFactory, SingletonCanBeSet::WhenEmpty );
+    EnableClassAsSingleton( LHS3UtilNS::IS3RequesterFactory, SingletonCanBeSet::WhenEmpty );
 }
 
 #endif

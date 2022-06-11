@@ -1,15 +1,15 @@
-#ifndef __LHS3UTIL_LHS3REQUESTCONTEXT_H__
-#define __LHS3UTIL_LHS3REQUESTCONTEXT_H__
+#ifndef __LHS3UTIL_S3REQUESTCONTEXT_H__
+#define __LHS3UTIL_S3REQUESTCONTEXT_H__
 
 #include <string>
 
 namespace LHS3UtilNS
 {
-    class LHS3RequestContext
+    class S3RequestContext
     {
     public:
         //CTOR
-        LHS3RequestContext( const std::string& host,
+        S3RequestContext( const std::string& host,
             const std::string& accessKey,
             const std::string& secretKey );
 
@@ -27,7 +27,7 @@ namespace LHS3UtilNS
         void SetAuthRegion( const std::string& _authRegion );
 
     private:
-        LHS3RequestContext() = delete;
+        S3RequestContext() = delete;
 
         //MEMBERS
         std::string host;
