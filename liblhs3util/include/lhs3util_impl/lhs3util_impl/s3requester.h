@@ -1,86 +1,90 @@
-#ifndef __LHS3UTIL_IMPL_S3REQUESTERIMPL_H__
-#define __LHS3UTIL_IMPL_S3REQUESTERIMPL_H__
+#ifndef __LHS3UTIL_IMPL_S3REQUESTER_H__
+#define __LHS3UTIL_IMPL_S3REQUESTER_H__
 
-#include <lhs3util/lhs3requester.h>
+#include <libs3.h>
+
+#include <lhs3util/is3requester.h>
 
 namespace LHS3UtilImplNS
 {
-    class S3RequesterImpl : public LHS3UtilNS::IS3Requester
+    class S3Requester : public LHS3UtilNS::IS3Requester
     {
     public:
-        S3RequesterImpl();
-        ~S3RequesterImpl();
+        S3Requester();
+        ~S3Requester();
 
-        S3Ret GetBuckets( const S3RequestContext& requestContext,
+        LHS3UtilNS::S3Ret GetBuckets( const LHS3UtilNS::S3RequestContext& requestContext,
             std::vector< std::string >& outBuckets );
 
-        S3Ret CreateBucket( const S3RequestContext& requestContext,
+        LHS3UtilNS::S3Ret CreateBucket( const LHS3UtilNS::S3RequestContext& requestContext,
             const std::string& bucketName );
 
-        S3Ret DeleteBucket( const S3RequestContext& requestContext,
+        LHS3UtilNS::S3Ret DeleteBucket( const LHS3UtilNS::S3RequestContext& requestContext,
             const std::string& bucketName );
 
-        S3Ret BucketExists( const S3RequestContext& requestContext,
+        LHS3UtilNS::S3Ret BucketExists( const LHS3UtilNS::S3RequestContext& requestContext,
             const std::string& bucketName );
 
-        S3Ret GetObjectsInBucket( const S3RequestContext& requestContext,
+        LHS3UtilNS::S3Ret GetObjectsInBucket( const LHS3UtilNS::S3RequestContext& requestContext,
             const std::string& bucketName,
             std::vector< std::string >& outObjects );
 
         //Upload Object into Bucket By Name
-        S3Ret UploadObject( const S3RequestContext& requestContext,
+        LHS3UtilNS::S3Ret UploadObject( const LHS3UtilNS::S3RequestContext& requestContext,
             const std::string& bucketName,
             const std::string& objectName,
-            IObjectUploader& objectUploader );
+            LHS3UtilNS::IObjectUploader& objectUploader );
 
         //Download Object from Bucket By Name
-        S3Ret DownloadObject( const S3RequestContext& requestContext,
+        LHS3UtilNS::S3Ret DownloadObject( const LHS3UtilNS::S3RequestContext& requestContext,
             const std::string& bucketName,
             const std::string& objectName,
-            IObjectDownloader& objectDownloader );
+            LHS3UtilNS::IObjectDownloader& objectDownloader );
 
-        S3Ret DownloadObject( const S3RequestContext& requestContext,
+        LHS3UtilNS::S3Ret DownloadObject( const LHS3UtilNS::S3RequestContext& requestContext,
             const std::string& bucketName,
             const std::string& objectName,
             std::vector< char >& chars );
 
-        S3Ret CheckObject( const S3RequestContext& requestContext,
+        LHS3UtilNS::S3Ret CheckObject( const LHS3UtilNS::S3RequestContext& requestContext,
             const std::string& bucketName,
             const std::string& objectName );
 
-        S3Ret CheckObject( const S3RequestContext& requestContext,
+        LHS3UtilNS::S3Ret CheckObject( const LHS3UtilNS::S3RequestContext& requestContext,
             const std::string& bucketName,
             const std::string& objectName,
             uint64_t& contentLengthBytes );
 
-        S3Ret DeleteObjectFromBucket(
-            const S3RequestContext& requestContext,
+        LHS3UtilNS::S3Ret DeleteObjectFromBucket(
+            const LHS3UtilNS::S3RequestContext& requestContext,
             const std::string& bucketName,
             const std::string& objectName );
+
+        S3Protocol GetProtocol() const;
     };
 
-    class S3RequesterFactoryImpl : public LHS3UtilNS::IS3RequesterFactory
+    class S3RequesterFactory : public LHS3UtilNS::IS3RequesterFactory
     {
     public:
-        S3RequesterFactoryImpl();
-        ~S3RequesterFactoryImpl();
+        S3RequesterFactory();
+        ~S3RequesterFactory();
 
-        std::unique_ptr< IS3Requester > CreateS3Requester() const;
+        std::unique_ptr< LHS3UtilNS::IS3Requester > CreateS3Requester() const;
     };
 
-    class GlobalS3RequesterFactoryImpl : public LHS3UtilNS::IS3RequesterFactory
+    class GlobalS3RequesterFactory : public LHS3UtilNS::IS3RequesterFactory
     {
     public:
-        GlobalS3RequesterFactoryImpl( const std::string& defaultHostName );
-        ~GlobalS3RequesterFactoryImpl();
+        GlobalS3RequesterFactory( const std::string& defaultHostName );
+        ~GlobalS3RequesterFactory();
 
-        GlobalS3RequesterFactoryImpl( const GlobalS3RequesterFactoryImpl& other ) = delete;
-        GlobalS3RequesterFactoryImpl& operator=( const GlobalS3RequesterFactoryImpl& other ) = delete;
+        GlobalS3RequesterFactory( const GlobalS3RequesterFactory& other ) = delete;
+        GlobalS3RequesterFactory& operator=( const GlobalS3RequesterFactory& other ) = delete;
 
-        std::unique_ptr< IS3Requester > CreateS3Requester() const;
+        std::unique_ptr< LHS3UtilNS::IS3Requester > CreateS3Requester() const;
 
     private:
-        S3RequesterFactoryImpl s3RequesterFactoryImpl;
+        S3RequesterFactory s3RequesterFactory;
     };
 }
 
@@ -88,7 +92,7 @@ namespace LHS3UtilImplNS
 
 namespace LHMiscUtilNS
 {
-    EnableClassAsOneTimeCreate( LHS3UtilImplNS::GlobalS3RequesterFactoryImpl );
+    EnableClassAsOneTimeCreate( LHS3UtilImplNS::GlobalS3RequesterFactory );
 }
 
 #endif

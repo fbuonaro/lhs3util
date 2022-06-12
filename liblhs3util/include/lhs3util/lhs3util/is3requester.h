@@ -1,5 +1,5 @@
-#ifndef __LHS3UTIL_S3REQUESTER_H__
-#define __LHS3UTIL_S3REQUESTER_H__
+#ifndef __LHS3UTIL_IS3REQUESTER_H__
+#define __LHS3UTIL_IS3REQUESTER_H__
 
 #include <memory>
 #include <string>

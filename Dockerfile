@@ -40,6 +40,19 @@ RUN yum -y install git && \
     make install DESTDIR=/usr && \
     ldconfig
 
+RUN git clone https://github.com/fbuonaro/lhmiscutil.git && \
+    cd lhmiscutil && \
+    mkdir build && \
+    cd build && \
+    cmake3 \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        ../ && \
+    make && \
+    make test && \
+    make install-lhmiscutil && \
+    ldconfig
+
 ENTRYPOINT [ "bash" ]
 
 ##################################################################################

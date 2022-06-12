@@ -1,4 +1,4 @@
-#include <lhs3util/ilhs3requester.h>
+#include <lhs3util/is3requester.h>
 
 namespace LHS3UtilNS
 {
@@ -14,25 +14,25 @@ namespace LHS3UtilNS
     IObjectDownloader::~IObjectDownloader()
     {}
 
-    ILHS3Requester::ILHS3Requester()
+    IS3Requester::IS3Requester()
     {}
 
-    ILHS3Requester::~ILHS3Requester()
+    IS3Requester::~IS3Requester()
     {}
 
-    ILHS3RequesterFactory::ILHS3RequesterFactory()
+    IS3RequesterFactory::IS3RequesterFactory()
     {}
 
-    ILHS3RequesterFactory::~ILHS3RequesterFactory()
+    IS3RequesterFactory::~IS3RequesterFactory()
     {}
 
-    std::shared_ptr< ILHS3RequesterFactory > GetInjectedLHS3RequesterFactory()
+    std::shared_ptr< IS3RequesterFactory > GetInjectedS3RequesterFactory()
     {
-        return LHMiscUtilNS::Singleton< ILHS3RequesterFactory >::GetInstance();
+        return LHMiscUtilNS::Singleton< IS3RequesterFactory >::GetInstance();
     }
 
     std::unique_ptr< IS3Requester > CreateS3RequesterWithInjectedFactory()
     {
-        return GetInjectedLHS3RequesterFactory()->CreateS3Requester();
+        return GetInjectedS3RequesterFactory()->CreateS3Requester();
     }
 }

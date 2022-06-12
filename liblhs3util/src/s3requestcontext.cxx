@@ -1,10 +1,10 @@
 #include <stdexcept>
 
-#include <lhs3util/lhs3requestcontext.h>
+#include <lhs3util/s3requestcontext.h>
 
 namespace LHS3UtilNS
 {
-    LHS3RequestContext::LHS3RequestContext( const std::string& _host,
+    S3RequestContext::S3RequestContext( const std::string& _host,
         const std::string& _accessKey,
         const std::string& _secretKey )
         : host( _host )
@@ -28,47 +28,47 @@ namespace LHS3UtilNS
         }
     }
 
-    void SetSecurityToken( const std::string& _securityToken )
+    void S3RequestContext::SetSecurityToken( const std::string& _securityToken )
     {
         securityToken = _securityToken;
     }
 
-    const std::string& LHS3RequestContext::SecurityToken() const
+    const std::string& S3RequestContext::SecurityToken() const
     {
         return securityToken;
     }
 
-    void LHS3RequestContext::SetTimeoutMS( int _timeoutMS )
+    void S3RequestContext::SetTimeoutMS( int _timeoutMS )
     {
         timeoutMS = _timeoutMS;
     }
 
-    int LHS3RequestContext::TimeoutMS() const
+    int S3RequestContext::TimeoutMS() const
     {
         return timeoutMS;
     }
 
-    void SetAuthRegion( const std::string& _authRegion )
+    void S3RequestContext::SetAuthRegion( const std::string& _authRegion )
     {
         authRegion = _authRegion;
     }
 
-    const std::string& LHS3RequestContext::AuthRegion() const
+    const std::string& S3RequestContext::AuthRegion() const
     {
         return authRegion;
     }
 
-    const std::string& LHS3RequestContext::Host() const
+    const std::string& S3RequestContext::Host() const
     {
         return host;
     }
 
-    const std::string& LHS3RequestContext::AccessKey() const
+    const std::string& S3RequestContext::AccessKey() const
     {
         return accessKey;
     }
 
-    const std::string& LHS3RequestContext::SecretKey() const
+    const std::string& S3RequestContext::SecretKey() const
     {
         return secretKey;
     }

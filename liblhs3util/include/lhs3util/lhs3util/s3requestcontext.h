@@ -27,8 +27,6 @@ namespace LHS3UtilNS
         void SetAuthRegion( const std::string& _authRegion );
 
     private:
-        S3RequestContext() = delete;
-
         //MEMBERS
         std::string host;
         std::string accessKey;
