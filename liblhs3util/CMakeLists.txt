@@ -37,12 +37,14 @@ if( NOT CURL_FOUND )
 endif( NOT CURL_FOUND )
 
 add_library( lhs3util SHARED
-    "${LIB_SRC_DIR}/lhs3istreamuploader.cxx"
-    "${LIB_SRC_DIR}/lhs3processcontext.cxx"
-    "${LIB_SRC_DIR}/lhs3requestcontext.cxx"
-    "${LIB_SRC_DIR}/lhs3requester.cxx" )
+    "${LIB_SRC_DIR}/is3requester.cxx"
+    "${LIB_SRC_DIR}/s3istreamuploader.cxx"
+    "${LIB_SRC_DIR}/s3requestcontext.cxx"
+    "${LIB_SRC_DIR}/s3requester.cxx" )
 
 target_link_libraries( lhs3util
+    PUBLIC
+        lhmiscutil
     PRIVATE
         s3
         "${CURL_LIBRARIES}"
@@ -51,7 +53,9 @@ target_link_libraries( lhs3util
 
 target_include_directories( lhs3util
     PUBLIC
-        "${LIB_INC_DIR}/lhs3util" )
+        "${LIB_INC_DIR}/lhs3util"
+    PRIVATE
+        "${LIB_INC_DIR}/lhs3util_impl" )
 
 ##############################################################
 # unit tests
@@ -73,7 +77,8 @@ target_include_directories( testlhs3util
     PRIVATE
         "${CMAKE_CURRENT_BINARY_DIR}"
         "${GTEST_INCLUDE_DIRS}"
-        "${LIB_INC_DIR}/lhs3util" )
+        "${LIB_INC_DIR}/lhs3util"
+        "${LIB_INC_DIR}/lhs3util_impl" )
 
 include( GoogleTest )
 gtest_add_tests( TARGET testlhs3util )
