@@ -1,14 +1,27 @@
 #include <cstring>
+#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
 
+#include <lhs3util/s3istreamuploader.h>
+#include <lhs3util/s3ostreamdownloader.h>
 #include <lhs3util_impl/s3requester.h>
+
+#include <sys/stat.h>
 
 namespace LHS3UtilImplNS
 {
     namespace
     {
+        // TODO - replace with something common
+        bool FileExists( const std::string& filePath )
+        {
+            struct stat statRet;
+            return ( stat( filePath.c_str(), &statRet ) == 0 );
+        }
+
+
         const char* cstrOrDefault( const std::string& str, const char* dflt )
         {
             return str.size() > 0 ? str.c_str() : dflt;
@@ -788,6 +801,62 @@ namespace LHS3UtilImplNS
                 &lhs3CBData );
 
         contentLengthBytes = lhs3CBData.contentLength;
+
+        return lhs3Ret;
+    }
+
+    LHS3UtilNS::S3Ret S3Requester::DownloadObjectToFile(
+        const LHS3UtilNS::S3RequestContext& requestContext,
+        const std::string& bucketName,
+        const std::string& objectName,
+        const std::string& filePath )
+    {
+        LHS3UtilNS::S3Ret lhs3Ret( LHS3UtilNS::S3Status::Error, std::string() );
+
+        if ( FileExists( filePath ) )
+        {
+            lhs3Ret.first = LHS3UtilNS::S3Status::Error;
+            lhs3Ret.second = "file exists";
+        }
+        else
+        {
+            std::ofstream ofs( filePath );
+            if ( ofs.is_open() )
+            {
+                LHS3UtilNS::S3OStreamDownloader ostreamDownloader( ofs );
+                lhs3Ret = DownloadObject(
+                    requestContext, bucketName, objectName, ostreamDownloader );
+            }
+            else
+            {
+                lhs3Ret.first = LHS3UtilNS::S3Status::Error;
+                lhs3Ret.second = "failed to open file for writing";
+            }
+        }
+
+        return lhs3Ret;
+    }
+
+    LHS3UtilNS::S3Ret S3Requester::UploadFileToObject(
+        const LHS3UtilNS::S3RequestContext& requestContext,
+        const std::string& bucketName,
+        const std::string& objectName,
+        const std::string& filePath )
+    {
+        LHS3UtilNS::S3Ret lhs3Ret( LHS3UtilNS::S3Status::Error, std::string() );
+
+        std::ifstream ifs( filePath );
+        if ( ifs.is_open() )
+        {
+            LHS3UtilNS::S3IStreamUploader istreamUploader( ifs );
+            lhs3Ret = UploadObject(
+                requestContext, bucketName, objectName, istreamUploader );
+        }
+        else
+        {
+            lhs3Ret.first = LHS3UtilNS::S3Status::Error;
+            lhs3Ret.second = "failed to open file for reading";
+        }
 
         return lhs3Ret;
     }

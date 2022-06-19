@@ -96,6 +96,18 @@ namespace LHS3UtilNS
             const S3RequestContext& requestContext,
             const std::string& bucketName,
             const std::string& objectName ) = 0;
+
+        virtual S3Ret DownloadObjectToFile(
+            const S3RequestContext& requestContext,
+            const std::string& bucketName,
+            const std::string& objectName,
+            const std::string& filePath ) = 0;
+
+        virtual S3Ret UploadFileToObject(
+            const S3RequestContext& requestContext,
+            const std::string& bucketName,
+            const std::string& objectName,
+            const std::string& filePath ) = 0;
     };
 
     class IS3RequesterFactory
