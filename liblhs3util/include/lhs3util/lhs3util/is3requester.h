@@ -96,6 +96,17 @@ namespace LHS3UtilNS
             const S3RequestContext& requestContext,
             const std::string& bucketName,
             const std::string& objectName ) = 0;
+
+        auto s3Ret = s3Requester->DownloadObjectToFile(
+            s3RequestContext,
+            "lhgraphs-codesources",
+            GetCSStorePathForHash( csParseRequest.hash ),
+            filePath );
+
+        s3Ret = s3Requester->UploadFile( s3RequestContext,
+            "lhgraphs-codesources",
+            path,
+            hashAndFile.second );
     };
 
     class IS3RequesterFactory
