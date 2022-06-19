@@ -4,8 +4,8 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <lhs3utill/s3istreamuploader.h>
-#include <lhs3utill/s3ostreamdownloader.h>
+#include <lhs3util/s3istreamuploader.h>
+#include <lhs3util/s3ostreamdownloader.h>
 #include <lhs3util_impl/s3requester.h>
 
 #include <sys/stat.h>
@@ -806,7 +806,7 @@ namespace LHS3UtilImplNS
     }
 
     LHS3UtilNS::S3Ret S3Requester::DownloadObjectToFile(
-        const S3RequestContext& requestContext,
+        const LHS3UtilNS::S3RequestContext& requestContext,
         const std::string& bucketName,
         const std::string& objectName,
         const std::string& filePath )
@@ -838,7 +838,7 @@ namespace LHS3UtilImplNS
     }
 
     LHS3UtilNS::S3Ret S3Requester::UploadFileToObject(
-        const S3RequestContext& requestContext,
+        const LHS3UtilNS::S3RequestContext& requestContext,
         const std::string& bucketName,
         const std::string& objectName,
         const std::string& filePath )
@@ -846,7 +846,7 @@ namespace LHS3UtilImplNS
         LHS3UtilNS::S3Ret lhs3Ret( LHS3UtilNS::S3Status::Error, std::string() );
 
         std::ifstream ifs( filePath );
-        if ( ofs.is_open() )
+        if ( ifs.is_open() )
         {
             LHS3UtilNS::S3IStreamUploader istreamUploader( ifs );
             lhs3Ret = UploadObject(
