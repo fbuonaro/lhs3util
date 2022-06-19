@@ -60,6 +60,18 @@ namespace LHS3UtilImplNS
             const std::string& bucketName,
             const std::string& objectName );
 
+        LHS3UtilNS::S3Ret DownloadObjectToFile(
+            const S3RequestContext& requestContext,
+            const std::string& bucketName,
+            const std::string& objectName,
+            const std::string& filePath );
+
+        LHS3UtilNS::S3Ret UploadFileToObject(
+            const S3RequestContext& requestContext,
+            const std::string& bucketName,
+            const std::string& objectName,
+            const std::string& filePath );
+
         S3Protocol GetProtocol() const;
     };
 
