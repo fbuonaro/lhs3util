@@ -39,6 +39,7 @@ endif( NOT CURL_FOUND )
 add_library( lhs3util SHARED
     "${LIB_SRC_DIR}/is3requester.cxx"
     "${LIB_SRC_DIR}/s3istreamuploader.cxx"
+    "${LIB_SRC_DIR}/s3ostreamdownloader.cxx"
     "${LIB_SRC_DIR}/s3requestcontext.cxx"
     "${LIB_SRC_DIR}/s3requester.cxx" )
 
