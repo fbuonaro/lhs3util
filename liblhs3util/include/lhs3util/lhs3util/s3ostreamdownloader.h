@@ -7,12 +7,12 @@
 
 namespace LHS3UtilNS
 {
-    class S3OstreamDownloader : public LHS3UtilNS::IObjectDownloader
+    class S3OStreamDownloader : public LHS3UtilNS::IObjectDownloader
     {
     public:
-        S3OstreamDownloader( std::ostream& _os );
+        S3OStreamDownloader( std::ostream& _os );
 
-        ~S3OstreamDownloader();
+        ~S3OStreamDownloader();
 
         void PutContentChars( int numChars, const char* chars );
 

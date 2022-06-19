@@ -2,15 +2,15 @@
 
 namespace LHS3UtilNS
 {
-    S3OstreamDownloader::S3OstreamDownloader( std::ostream& _os )
+    S3OStreamDownloader::S3OStreamDownloader( std::ostream& _os )
         : LHS3UtilNS::IObjectDownloader()
         , os( _os )
     {}
 
-    S3OstreamDownloader::~S3OstreamDownloader()
+    S3OStreamDownloader::~S3OStreamDownloader()
     {}
 
-    void S3OstreamDownloader::PutContentChars( int numChars, const char* chars )
+    void S3OStreamDownloader::PutContentChars( int numChars, const char* chars )
     {
         if ( numChars && chars )
             os.write( chars, numChars );
