@@ -202,6 +202,10 @@ namespace LHS3UtilImplNS
             S3_list_service_cb_data* lhs3ListCBData(
                 (S3_list_service_cb_data*)callbackData );
 
+            (void)( ownerID );
+            (void)( ownerDisplayName );
+            (void)( creationDateSeconds );
+
             try
             {
                 lhs3ListCBData->outBuckets.emplace_back( bucketName );
@@ -343,6 +347,11 @@ namespace LHS3UtilImplNS
             const char** commonPrefixes,
             void* callbackData )
         {
+            (void)( isTruncated );
+            (void)( nextMarker );
+            (void)( commonePrefixesCount );
+            (void)( commonPrefixes );
+
             S3Status status = S3StatusHttpErrorUnknown;
             S3_list_bucket_cb_data* lhs3ListCBData(
                 (S3_list_bucket_cb_data*)callbackData );

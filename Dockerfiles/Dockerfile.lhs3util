@@ -1,0 +1,116 @@
+################################################################################## 
+# STAGE 0 - base environment with first set of runtime dependencies 
+##################################################################################
+ARG BUILD_TAG
+ARG GIT_COMMIT
+
+FROM centos:centos7 as lhs3util-base-env
+
+RUN yum -y --enablerepo=extras install epel-release && \
+    yum -y install https://repo.ius.io/ius-release-el7.rpm && \
+    yum clean all
+
+##################################################################################
+# STAGE 1 - build tools and libraries needed to build lhs3util
+##################################################################################
+### deps ###
+FROM lhmiscutil:dist-${BUILD_TAG} AS lhmiscutil_dist_build
+FROM libs3-lhdist:dist-${BUILD_TAG} AS libs3_lhdist_dist_build
+### deps ###
+FROM lhs3util-base-env as lhs3util-build-env
+
+# for compiling and unit testing
+RUN yum -y install \
+        cmake3 \
+        gcc \
+        gcc-c++ \
+        gtest-devel \
+        make \
+        rpm-build && \
+    yum clean all
+
+RUN yum -y install \
+        libcurl-devel \
+        libxml2-devel \
+        openssl-devel && \
+    yum clean all
+
+ADD ./modules/lhscriptutil/scripts/refreshOrSetupLHDistYumRepo.sh /refreshOrSetupLHDistYumRepo.sh
+RUN /refreshOrSetupLHDistYumRepo.sh
+
+COPY --from=lhmiscutil_dist_build /lhdist/*.rpm /lhdist/
+COPY --from=libs3_lhdist_dist_build /lhdist/*.rpm /lhdist/
+RUN /refreshOrSetupLHDistYumRepo.sh
+
+RUN yum -y repo-pkgs lhdistrepo install && \
+    ldconfig && \
+    yum clean all
+
+ENTRYPOINT [ "bash" ]
+
+##################################################################################
+# STAGE 2 - the lhs3util source and compiled binaries
+##################################################################################
+FROM lhs3util-build-env as lhs3util-build
+
+ADD . /lhs3util
+RUN cd /lhs3util && \
+    mkdir ./build && \
+    cd ./build && \
+    cmake3 \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+        -DCPACK_PACKAGE_DIRECTORY=/lhdist \
+    ../ && \
+    make && \
+    make package && \
+    /refreshOrSetupLHDistYumRepo.sh
+
+ENV BUILD_TAG=${BUILD_TAG}
+LABEL build_tag="${BUILD_TAG}"
+ENV GIT_COMMIT=${GIT_COMMIT}
+LABEL git_commit="${GIT_COMMIT}"
+
+##################################################################################
+# STAGE 3 - the base image with additional built runtime dependencies, lhs3util 
+#           binaries and test binaries needed for running integration tests
+#           includes everything from build-env
+##################################################################################
+FROM lhs3util-build as lhs3util-test-env
+
+RUN cd /lhs3util/build && \
+    make install && \
+    ldconfig
+
+##################################################################################
+# STAGE 4 - the base image with additional built runtime dependencies and 
+#           lhs3util binaries includes nothing from build-env
+##################################################################################
+FROM lhs3util-base-env as lhs3util-main
+
+COPY --from=lhs3util-build /usr/ /usr/
+COPY --from=lhs3util-build /etc/ /etc/
+COPY --from=lhs3util-build /lhs3util/ /lhs3util/
+RUN cd /lhs3util/build && \
+    make install && \
+    make package && \
+    ldconfig && \
+    cd / && \
+    rm -rf /lhs3util
+
+##################################################################################
+# STAGE 5 - the base image with additional built runtime dependencies and 
+#           lhs3util binaries includes nothing from build-env
+##################################################################################
+FROM lhs3util-base-env as lhs3util-dist-test
+
+COPY --from=lhs3util-build /lhdist/ /lhdist/
+ADD ./modules/lhscriptutil/scripts/refreshOrSetupLHDistYumRepo.sh /refreshOrSetupLHDistYumRepo.sh
+RUN /refreshOrSetupLHDistYumRepo.sh
+RUN yum -y repo-pkgs lhdistrepo install && \
+    ldconfig && \
+    yum clean all
+
+FROM lhs3util-base-env as lhs3util-dist
+
+COPY --from=lhs3util-dist-test /lhdist/ /lhdist/
