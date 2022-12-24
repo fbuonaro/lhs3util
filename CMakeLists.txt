@@ -8,4 +8,10 @@ project( lhs3util
 
 enable_testing()
 
-add_subdirectory( liblhs3util )
+set(LH_SUBDIRECTORIES liblhs3util)
+
+include("modules/lhscriptutil/cmake/lhmacros.cmake")
+
+lh_toplevel_add_subdirectories()
+
+lh_toplevel_add_cpack_package_components()
