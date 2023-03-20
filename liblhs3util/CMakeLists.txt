@@ -50,7 +50,7 @@ set( LH_LIB_PRIVATE_LINKLIBS s3
 # header dependencies
 set( LH_LIB_PUBLIC_INCLUDES 
      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/lhs3util>        # build
-     $<INSTALL_INTERFACE:${INSTALL_INCDIR}> )                               # export
+     $<INSTALL_INTERFACE:${LH_INSTALL_INCDIR}> )                               # export
 set( LH_LIB_PRIVATE_INCLUDES 
      "${CMAKE_CURRENT_SOURCE_DIR}/include/lhs3util_impl"
      "${CMAKE_CURRENT_BINARY_DIR}" )
