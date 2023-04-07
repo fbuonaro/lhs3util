@@ -16,12 +16,13 @@ commonTilt = load_dynamic( os.path.join( gitDir, "lhscriptutil", "tilt", "common
 lhscriptutilTilt = load_dynamic( os.path.join( gitDir, "lhscriptutil", "Tiltfile") )
 lhQuickBuildImage = commonTilt[ "lhQuickBuildImage" ]
 lhQuickBuildImageNoK8 = commonTilt[ "lhQuickBuildImageNoK8" ]
+lhGitCheckoutAndLoad = commonTilt[ "lhGitCheckoutAndLoad" ]
 cfg = lhscriptutilTilt[ "cfg" ]
 ###############################################################################
 # <<< BOILERPLATE END
 ###############################################################################
 
-git_checkout( "git@github.com:fbuonaro/lhmiscutil.git#tilt" ) # TODO - release version
+lhGitCheckoutAndLoad( "git@github.com:fbuonaro/lhmiscutil.git#tilt", gitDir )
 
 lhQuickBuildImageNoK8( "libs3-lhdist", cfg, dockerfile="Dockerfiles/Dockerfile.libs3-lhdist" )
 
