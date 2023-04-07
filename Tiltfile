@@ -21,7 +21,7 @@ cfg = lhscriptutilTilt[ "cfg" ]
 # <<< BOILERPLATE END
 ###############################################################################
 
-git_checkout( "git@github.com:fbuonaro/lhmiscutil.git#master" ) # TODO - release version
+git_checkout( "git@github.com:fbuonaro/lhmiscutil.git#tilt" ) # TODO - release version
 
 lhQuickBuildImageNoK8( "libs3-lhdist", cfg, dockerfile="Dockerfiles/Dockerfile.libs3-lhdist" )
 
