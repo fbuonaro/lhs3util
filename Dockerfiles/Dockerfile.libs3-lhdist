@@ -13,7 +13,13 @@ RUN yum -y --enablerepo=extras install epel-release && \
 ##################################################################################
 # STAGE 1 - build tools and libraries needed to build libs3
 ##################################################################################
+### deps ###
+FROM lhscriptutil:dist-${BUILD_TAG} AS lhscriptutil_dist_build
+### deps ###
+
 FROM libs3-lhdist-base-env as libs3-lhdist-build-env
+
+COPY --from=lhscriptutil_dist_build /lhscriptutil/ /lhscriptutil/
 
 # for compiling and unit testing
 RUN yum -y install \
@@ -45,12 +51,11 @@ FROM libs3-lhdist-build-env as libs3-lhdist-build
 
 RUN mkdir -p /libs3-lhdist
 
-ADD ./modules/lhscriptutil/scripts/rpmdev-setuptree-at.sh /libs3-lhdist
 ADD ./dist/libs3-lhdist.spec /libs3-lhdist
 
 RUN cd /libs3-lhdist && \
     mkdir build && \
-    ./rpmdev-setuptree-at.sh ./build && \
+    /lhscriptutil/scripts/rpmdev-setuptree-at.sh ./build && \
     rpmbuild --define "_topdir ${PWD}/build"  -ba ./libs3-lhdist.spec && \
     mkdir -p /lhdist && \
     find ./build/RPMS/ | grep "\.rpm" | xargs -I{} cp -f -u {} /lhdist
@@ -63,10 +68,11 @@ LABEL git_commit="${GIT_COMMIT}"
 ##################################################################################
 # STAGE 3 - test /lhdist
 ##################################################################################
-FROM libs3-lhdist-build-env as libs3-lhdist-check
+FROM libs3-lhdist-base-env as libs3-lhdist-check
 
-ADD ./modules/lhscriptutil/scripts/refreshOrSetupLHDistYumRepo.sh /refreshOrSetupLHDistYumRepo.sh
-RUN /refreshOrSetupLHDistYumRepo.sh
+COPY --from=libs3-lhdist-build /lhdist/ /lhdist/
+COPY --from=libs3-lhdist-build-env /lhscriptutil/ /lhscriptutil/
+RUN /lhscriptutil/scripts/refreshOrSetupLHDistYumRepo.sh
 RUN yum -y repo-pkgs lhdistrepo install && \
     yum clean all
 
@@ -75,4 +81,4 @@ RUN yum -y repo-pkgs lhdistrepo install && \
 ##################################################################################
 FROM libs3-lhdist-base-env as libs3-lhdist-dist
 
-COPY --from=libs3-lhdist-build /lhdist /lhdist
+COPY --from=libs3-lhdist-check /lhdist /lhdist

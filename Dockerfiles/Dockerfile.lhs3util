@@ -14,6 +14,7 @@ RUN yum -y --enablerepo=extras install epel-release && \
 # STAGE 1 - build tools and libraries needed to build lhs3util
 ##################################################################################
 ### deps ###
+FROM lhscriptutil:dist-${BUILD_TAG} AS lhscriptutil_dist_build
 FROM lhmiscutil:dist-${BUILD_TAG} AS lhmiscutil_dist_build
 FROM libs3-lhdist:dist-${BUILD_TAG} AS libs3_lhdist_dist_build
 ### deps ###
@@ -35,12 +36,12 @@ RUN yum -y install \
         openssl-devel && \
     yum clean all
 
-ADD ./modules/lhscriptutil/scripts/refreshOrSetupLHDistYumRepo.sh /refreshOrSetupLHDistYumRepo.sh
-RUN /refreshOrSetupLHDistYumRepo.sh
+COPY --from=lhscriptutil_dist_build /lhscriptutil/ /lhscriptutil/
+RUN /lhscriptutil/scripts/refreshOrSetupLHDistYumRepo.sh
 
 COPY --from=lhmiscutil_dist_build /lhdist/*.rpm /lhdist/
 COPY --from=libs3_lhdist_dist_build /lhdist/*.rpm /lhdist/
-RUN /refreshOrSetupLHDistYumRepo.sh
+RUN /lhscriptutil/scripts/refreshOrSetupLHDistYumRepo.sh
 
 RUN yum -y repo-pkgs lhdistrepo install && \
     ldconfig && \
@@ -64,7 +65,7 @@ RUN cd /lhs3util && \
     ../ && \
     make && \
     make package && \
-    /refreshOrSetupLHDistYumRepo.sh
+    /lhscriptutil/scripts/refreshOrSetupLHDistYumRepo.sh
 
 ENV BUILD_TAG=${BUILD_TAG}
 LABEL build_tag="${BUILD_TAG}"
@@ -88,29 +89,17 @@ RUN cd /lhs3util/build && \
 ##################################################################################
 FROM lhs3util-base-env as lhs3util-main
 
-COPY --from=lhs3util-build /usr/ /usr/
-COPY --from=lhs3util-build /etc/ /etc/
-COPY --from=lhs3util-build /lhs3util/ /lhs3util/
-RUN cd /lhs3util/build && \
-    make install && \
-    make package && \
+COPY --from=lhs3util-build /lhdist/ /lhdist/
+COPY --from=lhs3util-build-env /lhscriptutil/ /lhscriptutil/
+RUN /lhscriptutil/scripts/refreshOrSetupLHDistYumRepo.sh
+RUN yum -y repo-pkgs lhdistrepo install && \
     ldconfig && \
-    cd / && \
-    rm -rf /lhs3util
+    yum clean all
 
 ##################################################################################
 # STAGE 5 - the base image with additional built runtime dependencies and 
 #           lhs3util binaries includes nothing from build-env
 ##################################################################################
-FROM lhs3util-base-env as lhs3util-dist-test
-
-COPY --from=lhs3util-build /lhdist/ /lhdist/
-ADD ./modules/lhscriptutil/scripts/refreshOrSetupLHDistYumRepo.sh /refreshOrSetupLHDistYumRepo.sh
-RUN /refreshOrSetupLHDistYumRepo.sh
-RUN yum -y repo-pkgs lhdistrepo install && \
-    ldconfig && \
-    yum clean all
-
 FROM lhs3util-base-env as lhs3util-dist
 
-COPY --from=lhs3util-dist-test /lhdist/ /lhdist/
+COPY --from=lhs3util-main /lhdist/ /lhdist/

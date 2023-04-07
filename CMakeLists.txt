@@ -10,7 +10,7 @@ enable_testing()
 
 set(LH_SUBDIRECTORIES liblhs3util)
 
-include("modules/lhscriptutil/cmake/lhmacros.cmake")
+include("/lhscriptutil/cmake/lhmacros.cmake")
 
 lh_toplevel_add_subdirectories()
 

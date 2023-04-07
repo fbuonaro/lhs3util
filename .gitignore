@@ -33,3 +33,6 @@
 
 /build/
 *.swp
+
+/modules/**
+!/modules/.keepdir
